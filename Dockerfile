@@ -7,7 +7,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy the site into nginx's web root
-COPY site/ /usr/share/nginx/html/index.html
+COPY site/ /usr/share/nginx/html/
 
 # nginx already listens on 80 by default in this image
 EXPOSE 80
