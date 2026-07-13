@@ -12,10 +12,10 @@ deploy:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull YOUR_DOCKERHUB_USERNAME/densmile-website:latest
+          docker pull sarathchandran0707/densmile-website:latest
           docker stop densmile-container || true
           docker rm densmile-container || true
-          docker run -d --name densmile-container -p 80:80 YOUR_DOCKERHUB_USERNAME/densmile-website:latest
+          docker run -d --name densmile-container -p 80:80 sarathchandran0707/densmile-website:latest
 
     - name: Rollback on Failure
       if: failure()
