@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: densmile-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: densmile
+  template:
+    metadata:
+      labels:
+        app: densmile
+    spec:
+      containers:
+      - name: densmile
+        image: sarathchandran0707/densmile-website:latest
+        ports:
+        - containerPort: 80
