@@ -1,50 +1,24 @@
-name: Densmile CI/CD Pipeline
+deploy:
+  needs: build
+  runs-on: ubuntu-latest
 
-on:
-  push:
-    branches:
-      - main
+  steps:
+    - uses: actions/checkout@v4
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull YOUR_DOCKERHUB_USERNAME/densmile-website:latest
+          docker stop densmile-container || true
+          docker rm densmile-container || true
+          docker run -d --name densmile-container -p 80:80 YOUR_DOCKERHUB_USERNAME/densmile-website:latest
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Run Automated Tests
-        run: |
-          chmod +x test.sh
-          ./test.sh
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Docker Image
-        run: docker build -t densmile-website .
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-
-      - name: Wait for Deployment
-        run: kubectl rollout status deployment/densmile-deployment --timeout=60s
-
-      - name: Rollback on Failure
-        if: failure()
-        run: |
-          chmod +x rollback.sh
-          ./rollback.sh
+    - name: Rollback on Failure
+      if: failure()
+      run: |
+        chmod +x rollback.sh
+        ./rollback.sh
